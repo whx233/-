@@ -1,0 +1,29 @@
+vue cli+axios踩坑记录+拦截器使用，代理跨域proxy（更新）
+
+小小的提一下vue cli脚手架前端调后端数据接口时候的本地代理跨域问题，如我在本地localhost访问接口http://40.00.100.100:3002/是要跨域的，相当于浏览器设置了一到门槛，会报错XMLHTTPRequest can not load http://40.00.100.100:3002/. Response to preflight request doesn’t pass access control…. 为什么跨域同源非同源自己去查吧，在webpack配置一下proxyTable就OK了，如下 config/index.js
+
+Build Setup
+对应https的需配置 index.js:secure: false,
+
+dev: {
+    加入以下
+    proxyTable: {
+      '/api': {
+        target: 'http://40.00.100.100:3002/',//设置你调用的接口域名和端口号 别忘了加http
+        changeOrigin: true,
+        secure: false,//如果是https
+        pathRewrite: {
+          '^/api': '/'//这里理解成用‘/api’代替target里面的地址，后面组件中我们掉接口时直接用api代替 比如我要调用'http://40.00.100.100:3002/user/add'，直接写‘/api/user/add’即可
+        }
+      }
+    },
+试一下，跨域成功了，但是注意了，这只是开发环境（dev）中解决了跨域问题，生产环境中真正部署到服务器上如果是非同源还是存在跨域问题，如我们部署的服务器端口是3001，需要前后端联调，第一步前端我们可以分生产production和开发development两种环境分别测试，在config/dev.env.js和prod.env.js里也就是开发/生产环境下分别配置一下请求的地址API_HOST，开发环境中我们用上面配置的代理地址api，生产环境下用正常的接口地址，所以这样配置
+
+module.exports = merge(prodEnv, {
+  NODE_ENV: '"development"',//开发环境
+  API_HOST:"/api/"
+})
+module.exports = {
+  NODE_ENV: '"production"',//生产环境
+  API_HOST:'"http://40.00.100.100:3002/"'
+}
