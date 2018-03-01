@@ -1,0 +1,18 @@
+今天重装了vue-cli脚手架
+这次我安装了node-sass+sass-loader之后还是不行，进入webpack.base.config.js发现没有配置scss。
+
+所以增加如下：
+
+{
+        test: /\.vue$/,
+        loader: 'vue-loader',
+        options: {
+          loaders: {
+            'scss': 'style-loader!css-loader!sass-loader'
+          }
+        }
+      }
+
+当然，如果需要在vue文件style标签使用scss的话，需要声明一下：
+
+<style rel="stylesheet/scss" lang="scss">
